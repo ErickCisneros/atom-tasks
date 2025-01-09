@@ -81,7 +81,6 @@ app.get('/api/users/:email', async (request: Request, response: Response) => {
   }
 });
 
-// Endpoint: POST /users - Add a new user
 app.post('/api/users', async (request: Request, response: Response) => {
   try {
     const newUser = request.body;
