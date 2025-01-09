@@ -1,3 +1,30 @@
-<h1 class="text-3xl font-bold underline">
-  <p>sign-in works!</p>
-</h1>
+<p class="font-bold mt-0 mb-4 text-xl">Welcome!</p>
+
+<p class="w-full text-gray-500 font-bold mt-0 mb-1">Login with your email</p>
+
+<form
+  [formGroup]="form"
+  (ngSubmit)="onSubmit()"
+  class="flex flex-col items-center"
+>
+  <mat-form-field appearance="outline" class="w-full py-2">
+    <mat-label>Email</mat-label>
+    <input matInput formControlName="email" placeholder="Your awesome email" />
+    <mat-icon matIconPrefix>mail</mat-icon>
+  </mat-form-field>
+
+  <button
+    mat-raised-button
+    class="my-2"
+    type="submit"
+    [disabled]="!validatedForm"
+  >
+    Sign In
+  </button>
+</form>
+
+<div class="flex justify-center w-full">
+  <button mat-button class="my-2" type="button" (click)="onSignUp()">
+    No account yet? Sign up
+  </button>
+</div>
