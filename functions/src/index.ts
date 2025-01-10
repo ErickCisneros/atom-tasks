@@ -2,8 +2,11 @@ import express, { Request, Response } from 'express';
 import * as admin from 'firebase-admin';
 import * as logger from 'firebase-functions/logger';
 import { https } from 'firebase-functions/v2';
+const cors = require('cors');
 
 const app = express();
+app.use(cors());
+
 admin.initializeApp();
 const db = admin.firestore();
 

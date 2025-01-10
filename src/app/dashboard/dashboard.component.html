@@ -1,1 +1,15 @@
-<p>dashboard works!</p>
+<app-inside-container>
+  <div
+    class="flex flex-col md:flex-row justify-center gap-3 h-full mx-0 sm:mx-3 pt-1"
+  >
+    <div class="w-full md:w-1/3 xl:w-1/4">
+      <app-task-form></app-task-form>
+    </div>
+    <div class="w-full md:w-2/3 xl:w-3/4">
+      <div class="flex flex-col gap-3 h-full">
+        <app-tasks-completed-table class="grow"></app-tasks-completed-table>
+        <app-tasks-uncompleted-table class="grow"></app-tasks-uncompleted-table>
+      </div>
+    </div>
+  </div>
+</app-inside-container>
