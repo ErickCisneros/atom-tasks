@@ -1,0 +1,38 @@
+<div class="flex flex-col lg:flex-row gap-3 h-full">
+  <mat-card class="bg-white h-full w-full" align="center">
+    <mat-card-title class="text-gray-500 font-bold my-2">To do</mat-card-title>
+    <mat-card-content class="px-0 grow">
+      <div class="container">
+        <div
+          cdkDropList
+          #todoList="cdkDropList"
+          [cdkDropListData]="todo"
+          [cdkDropListConnectedTo]="[doneList]"
+          class="list"
+          (cdkDropListDropped)="drop($event)"
+        >
+          @for (item of todo; track item) {
+            <div class="task" cdkDrag>{{ item }}</div>
+          }
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+  <mat-card class="bg-white h-full w-full" align="center">
+    <mat-card-title class="text-gray-500 font-bold my-2">Done</mat-card-title>
+    <mat-card-content class="px-0">
+      <div
+        cdkDropList
+        #doneList="cdkDropList"
+        [cdkDropListData]="done"
+        [cdkDropListConnectedTo]="[todoList]"
+        class="list"
+        (cdkDropListDropped)="drop($event)"
+      >
+        @for (item of done; track item) {
+          <div class="task" cdkDrag>{{ item }}</div>
+        }
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>
