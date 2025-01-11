@@ -25,7 +25,12 @@ app.post('/api/tasks', async (request: Request, response: Response) => {
   try {
     const newTask = request.body;
     const docRef = await db.collection('tasks').add(newTask);
-    response.status(200).json({ success: true, id: docRef.id, ...newTask });
+    response.status(200).json({
+      success: true,
+      id: docRef.id,
+      createdAt: new Date(),
+      ...newTask,
+    });
   } catch (error) {
     logger.error('Error creating task:', error);
     response.status(400).json({ success: false, error: 'Error creating task' });
