@@ -101,8 +101,16 @@ app.get('/api/users/:email', async (request: Request, response: Response) => {
 app.post('/api/users', async (request: Request, response: Response) => {
   try {
     const newUser = request.body;
-    const docRef = await db.collection('users').add(newUser);
-    response.status(200).json({ id: docRef.id, ...newUser });
+    const snapshot = await db
+      .collection('users')
+      .where('email', '==', newUser.email)
+      .get();
+    if (snapshot.empty) {
+      const docRef = await db.collection('users').add(newUser);
+      response.status(200).json({ id: docRef.id, ...newUser });
+    } else {
+      response.status(200).json({ id: snapshot.docs[0].id, ...newUser });
+    }
   } catch (error) {
     logger.error('Error creating user:', error);
     response.status(400).json({ success: false, error: 'Error creating user' });
