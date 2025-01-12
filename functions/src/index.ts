@@ -16,7 +16,19 @@ app.get('/api/tasks', async (request: Request, response: Response) => {
       .collection('tasks')
       .orderBy('createdAt', 'asc')
       .get();
-    const tasks = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    const tasks = snapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        createdAt: data.createdAt
+          ? new Date(data.createdAt.seconds * 1000)
+          : null,
+        completedAt: data.completedAt
+          ? new Date(data.completedAt.seconds * 1000)
+          : null,
+      };
+    });
     response.status(200).json(tasks);
   } catch (error) {
     logger.error('Error getting tasks:', error);
@@ -43,7 +55,8 @@ app.post('/api/tasks', async (request: Request, response: Response) => {
 });
 
 app.put('/api/tasks/:taskId', async (request: Request, response: Response) => {
-  const { taskId, updatedTask } = request.body;
+  const { taskId } = request.params;
+  const updatedTask = request.body;
   try {
     await db.collection('tasks').doc(taskId).update(updatedTask);
     response

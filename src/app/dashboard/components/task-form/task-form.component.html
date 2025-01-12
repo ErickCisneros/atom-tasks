@@ -23,12 +23,13 @@
 
       <mat-form-field appearance="outline" class="w-full pb-2">
         <mat-label>Description</mat-label>
-        <input
+        <textarea
           matInput
           formControlName="description"
           placeholder="Your task description"
-        />
-        <mat-icon matIconPrefix>description</mat-icon>
+          class="resize-none"
+          rows="5"
+        ></textarea>
       </mat-form-field>
 
       <button

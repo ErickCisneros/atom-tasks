@@ -1,5 +1,5 @@
-<div class="flex flex-col lg:flex-row gap-3 h-full">
-  <mat-card class="bg-white h-full w-full" align="center">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3 h-full">
+  <mat-card class="bg-white h-full w-full overflow-hidden" align="center">
     <mat-card-title class="text-gray-500 font-bold my-2">To Do</mat-card-title>
     <div
       cdkDropList
@@ -11,10 +11,44 @@
     >
       @for (task of todo; track task.id) {
         <div class="task" cdkDrag>
-          <div class="flex-flex-col">
-            <span>{{ task.title }}</span>
-            <span>{{ task.createdAt | date }}</span>
-            <p>{{ task.description }}</p>
+          <div class="flex flex-col pr-2">
+            <button
+              mat-icon-button
+              (click)="editTask(task)"
+              class="text-gray-500"
+            >
+              <mat-icon>check_circle</mat-icon>
+            </button>
+          </div>
+          <div class="flex flex-col w-px grow">
+            <div class="flex flex-row justify-between">
+              <p class="font-bold text-lg truncate">{{ task.title }}</p>
+              <div class="flex flex-col text-gray-500 text-xs min-w-max px-3">
+                <span>Created At</span>
+                <span>{{ task.createdAt | date: "short" }}</span>
+              </div>
+            </div>
+            <div class="flex w-full">
+              <span class="self-start font-light truncate">
+                {{ task.description }}
+              </span>
+            </div>
+          </div>
+          <div class="flex flex-col">
+            <button
+              mat-icon-button
+              (click)="editTask(task)"
+              class="text-gray-500"
+            >
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              (click)="deleteTask(task)"
+              class="text-gray-500"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
           </div>
         </div>
       }
@@ -31,7 +65,38 @@
       (cdkDropListDropped)="drop($event)"
     >
       @for (task of done; track task.id) {
-        <div class="task" cdkDrag>{{ task.title }}</div>
+        <div class="task" cdkDrag>
+          <div class="flex flex-col w-px grow">
+            <div class="flex flex-row justify-between">
+              <p class="font-bold text-lg truncate">{{ task.title }}</p>
+              <div class="flex flex-col text-gray-500 text-xs min-w-max px-3">
+                <span>Created At</span>
+                <span>{{ task.createdAt | date: "short" }}</span>
+              </div>
+            </div>
+            <div class="flex w-full">
+              <span class="self-start font-light truncate">
+                {{ task.description }}
+              </span>
+            </div>
+          </div>
+          <div class="flex flex-col">
+            <button
+              mat-icon-button
+              (click)="editTask(task)"
+              class="text-gray-500"
+            >
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              (click)="deleteTask(task)"
+              class="text-gray-500"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
       }
     </div>
   </mat-card>

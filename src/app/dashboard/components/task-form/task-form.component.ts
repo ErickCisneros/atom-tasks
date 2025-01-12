@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  OnInit,
+} from '@angular/core';
 import {
   NonNullableFormBuilder,
   ReactiveFormsModule,
@@ -28,11 +33,12 @@ import { TaskService } from '../../services/task.service';
   styleUrl: './task-form.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TaskFormComponent {
+export class TaskFormComponent implements OnInit {
   private taskService = inject(TaskService);
   private submitting = false;
 
   private fb = inject(NonNullableFormBuilder);
+  private taskId: string | null = null;
 
   public form = this.fb.group({
     title: this.fb.control('', {
@@ -43,29 +49,30 @@ export class TaskFormComponent {
     }),
   });
 
-  get title() {
-    return this.form.get('title');
-  }
-
-  get description() {
-    return this.form.get('description');
-  }
-
   get validatedForm() {
     return this.form.dirty && this.form.valid && !this.submitting;
   }
 
-  enableLoading() {
-    this.submitting = true;
-  }
-
-  disableLoading() {
-    this.submitting = false;
+  ngOnInit() {
+    this.taskService.onEditTask$().subscribe((task) => {
+      this.taskId = task.id;
+      this.form.patchValue(task);
+    });
   }
 
   onSubmit() {
     const task: Partial<Task> = this.form.value;
-    this.taskService.postTask(task).subscribe(() => {
+
+    if (this.taskId) {
+      this.taskService.putTask$(this.taskId, task).subscribe(() => {
+        this.taskId = null;
+        this.form.reset();
+      });
+
+      return;
+    }
+
+    this.taskService.postTask$(task).subscribe(() => {
       this.form.reset();
     });
   }
