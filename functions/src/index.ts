@@ -85,10 +85,10 @@ app.get('/api/users/:email', async (request: Request, response: Response) => {
       .where('email', '==', email)
       .get();
     if (snapshot.empty) {
-      response.status(200).json({ success: false, message: 'User not found' });
+      response.status(200).json({ id: null, email: null });
     } else {
       const user = snapshot.docs[0].data();
-      response.status(200).json({ success: true, user });
+      response.status(200).json({ id: snapshot.docs[0].id, ...user });
     }
   } catch (error) {
     logger.error('Error searching user:', error);
@@ -102,7 +102,7 @@ app.post('/api/users', async (request: Request, response: Response) => {
   try {
     const newUser = request.body;
     const docRef = await db.collection('users').add(newUser);
-    response.status(200).json({ success: true, id: docRef.id, ...newUser });
+    response.status(200).json({ id: docRef.id, ...newUser });
   } catch (error) {
     logger.error('Error creating user:', error);
     response.status(400).json({ success: false, error: 'Error creating user' });

@@ -9,6 +9,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
+import { User } from '../../types/user';
 import { SignUpDialogComponent } from '../sign-up-dialog/sign-up-dialog.component';
 
 @Component({
@@ -27,6 +30,8 @@ import { SignUpDialogComponent } from '../sign-up-dialog/sign-up-dialog.componen
 })
 export default class SignInComponent {
   private dialog = inject(MatDialog);
+  private router = inject(Router);
+  private authService = inject(AuthService);
   private submitting = false;
 
   private fb = inject(NonNullableFormBuilder);
@@ -37,31 +42,38 @@ export default class SignInComponent {
     }),
   });
 
-  get email() {
-    return this.form.get('email');
-  }
-
   get validatedForm() {
     return this.form.dirty && this.form.valid && !this.submitting;
   }
 
-  enableLoading() {
-    this.submitting = true;
-  }
+  onSubmit() {
+    this.authService
+      .getUser$(this.form.controls.email.value)
+      .subscribe((user: User) => {
+        if (!user.id) {
+          this.createUserAndLogin(this.form.controls.email.value);
+          return;
+        }
 
-  disableLoading() {
-    this.submitting = false;
+        this.router.navigate(['/dashboard']);
+      });
   }
-
-  onSubmit() {}
 
   onSignUp() {
     const dialogRef = this.dialog.open(SignUpDialogComponent);
 
     dialogRef.afterClosed().subscribe((email: string) => {
       if (email) {
-        console.log(email);
+        this.createUserAndLogin(email);
       }
     });
   }
+
+  private createUserAndLogin = (email: string): void => {
+    const user: User = { email };
+
+    this.authService.postUser$(user).subscribe(() => {
+      this.router.navigate(['/dashboard']);
+    });
+  };
 }

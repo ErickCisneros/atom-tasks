@@ -74,6 +74,12 @@ export class TasksListsComponent implements OnInit, OnDestroy {
     this.taskService.tasksSubject.next(task);
   }
 
+  completeTask(task: Task) {
+    this.taskService
+      .putTask$(task.id, { ...task, completedAt: new Date() })
+      .subscribe();
+  }
+
   deleteTask(task: Task) {
     this.taskService.deleteTask$(task.id).subscribe(this.refreshTasks);
   }

@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatToolbar } from '@angular/material/toolbar';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-toolbar',
@@ -11,4 +12,10 @@ import { MatToolbar } from '@angular/material/toolbar';
   styleUrl: './toolbar.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ToolbarComponent {}
+export class ToolbarComponent {
+  private router = inject(Router);
+
+  logout() {
+    this.router.navigate(['/auth']);
+  }
+}
