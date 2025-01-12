@@ -72,8 +72,10 @@ export class TaskFormComponent implements OnInit {
       return;
     }
 
-    this.taskService.postTask$(task).subscribe(() => {
-      this.form.reset();
-    });
+    this.taskService
+      .postTask$({ ...task, createdAt: new Date() })
+      .subscribe(() => {
+        this.form.reset();
+      });
   }
 }

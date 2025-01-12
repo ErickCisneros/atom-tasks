@@ -18,16 +18,7 @@ app.get('/api/tasks', async (request: Request, response: Response) => {
       .get();
     const tasks = snapshot.docs.map((doc) => {
       const data = doc.data();
-      return {
-        id: doc.id,
-        ...data,
-        createdAt: data.createdAt
-          ? new Date(data.createdAt.seconds * 1000)
-          : null,
-        completedAt: data.completedAt
-          ? new Date(data.completedAt.seconds * 1000)
-          : null,
-      };
+      return { id: doc.id, ...data };
     });
     response.status(200).json(tasks);
   } catch (error) {
@@ -39,13 +30,10 @@ app.get('/api/tasks', async (request: Request, response: Response) => {
 app.post('/api/tasks', async (request: Request, response: Response) => {
   try {
     const newTask = request.body;
-    const docRef = await db
-      .collection('tasks')
-      .add({ ...newTask, createdAt: new Date(), isCompleted: false });
+    const docRef = await db.collection('tasks').add({ ...newTask });
     response.status(200).json({
       success: true,
       id: docRef.id,
-
       ...newTask,
     });
   } catch (error) {
@@ -58,7 +46,10 @@ app.put('/api/tasks/:taskId', async (request: Request, response: Response) => {
   const { taskId } = request.params;
   const updatedTask = request.body;
   try {
-    await db.collection('tasks').doc(taskId).update(updatedTask);
+    await db
+      .collection('tasks')
+      .doc(taskId)
+      .update({ ...updatedTask });
     response
       .status(200)
       .json({ success: true, message: 'Task updated successfully' });

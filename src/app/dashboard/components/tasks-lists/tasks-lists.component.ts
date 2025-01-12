@@ -17,6 +17,7 @@ import {
 import { MatCard, MatCardTitle } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
 import { Subscription } from 'rxjs';
+import { ListEnum } from '../../../types/list.enum';
 import { Task } from '../../../types/task';
 import { TaskService } from '../../services/task.service';
 
@@ -35,6 +36,7 @@ export class TasksListsComponent implements OnInit, OnDestroy {
 
   todo: Task[] = [];
   done: Task[] = [];
+  list = ListEnum;
   tasks$ = this.taskService.getTasks$();
   refreshTasks$ = this.taskService.onTasksRefresh();
 
@@ -47,7 +49,7 @@ export class TasksListsComponent implements OnInit, OnDestroy {
     this.subs.unsubscribe();
   }
 
-  async drop(event: CdkDragDrop<Task[]>) {
+  drop(event: CdkDragDrop<Task[]>, list: ListEnum) {
     if (event.previousContainer === event.container) {
       moveItemInArray(
         event.container.data,
@@ -61,6 +63,10 @@ export class TasksListsComponent implements OnInit, OnDestroy {
         event.previousIndex,
         event.currentIndex,
       );
+
+      const task: Task = event.item.data;
+      const completedAt = ListEnum.DONE === list ? new Date() : null;
+      this.taskService.putTask$(task.id, { ...task, completedAt }).subscribe();
     }
   }
 

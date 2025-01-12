@@ -7,10 +7,10 @@
       [cdkDropListData]="todo"
       [cdkDropListConnectedTo]="[doneList]"
       class="list"
-      (cdkDropListDropped)="drop($event)"
+      (cdkDropListDropped)="drop($event, list.TO_TODO)"
     >
       @for (task of todo; track task.id) {
-        <div class="task" cdkDrag>
+        <div class="task" cdkDrag [cdkDragData]="task">
           <div class="flex flex-col pr-2">
             <button
               mat-icon-button
@@ -62,10 +62,10 @@
       [cdkDropListData]="done"
       [cdkDropListConnectedTo]="[todoList]"
       class="list"
-      (cdkDropListDropped)="drop($event)"
+      (cdkDropListDropped)="drop($event, list.DONE)"
     >
       @for (task of done; track task.id) {
-        <div class="task" cdkDrag>
+        <div class="task" cdkDrag [cdkDragData]="task">
           <div class="flex flex-col w-px grow">
             <div class="flex flex-row justify-between">
               <p class="font-bold text-lg truncate">{{ task.title }}</p>
