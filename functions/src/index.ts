@@ -12,9 +12,12 @@ const db = admin.firestore();
 
 app.get('/api/tasks', async (request: Request, response: Response) => {
   try {
-    const snapshot = await db.collection('tasks').get();
+    const snapshot = await db
+      .collection('tasks')
+      .orderBy('createdAt', 'asc')
+      .get();
     const tasks = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-    response.status(200).json({ success: true, tasks });
+    response.status(200).json(tasks);
   } catch (error) {
     logger.error('Error getting tasks:', error);
     response.status(400).json({ success: false, error: 'Error getting tasks' });
@@ -24,11 +27,13 @@ app.get('/api/tasks', async (request: Request, response: Response) => {
 app.post('/api/tasks', async (request: Request, response: Response) => {
   try {
     const newTask = request.body;
-    const docRef = await db.collection('tasks').add(newTask);
+    const docRef = await db
+      .collection('tasks')
+      .add({ ...newTask, createdAt: new Date(), isCompleted: false });
     response.status(200).json({
       success: true,
       id: docRef.id,
-      createdAt: new Date(),
+
       ...newTask,
     });
   } catch (error) {
@@ -65,7 +70,7 @@ app.delete(
         .status(200)
         .json({ success: true, error: 'Error deleting task' });
     }
-  }
+  },
 );
 
 app.get('/api/users/:email', async (request: Request, response: Response) => {

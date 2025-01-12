@@ -10,6 +10,10 @@ export class TaskService {
   private readonly BASE_API = environment.BASE_API;
   private httpClient = inject(HttpClient);
 
+  getTasks() {
+    return this.httpClient.get<Task[]>(`${this.BASE_API}/tasks`);
+  }
+
   postTask(task: Partial<Task>) {
     return this.httpClient.post<Task>(`${this.BASE_API}/tasks`, task);
   }
