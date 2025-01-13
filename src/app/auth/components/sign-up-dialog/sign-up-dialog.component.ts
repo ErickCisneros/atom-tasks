@@ -27,11 +27,9 @@ import { MatInputModule } from '@angular/material/input';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SignUpDialogComponent {
-  private submitting = false;
-
   private fb = inject(NonNullableFormBuilder);
 
-  public form = this.fb.group({
+  form = this.fb.group({
     email: this.fb.control('', {
       validators: [Validators.required, Validators.email],
     }),
@@ -42,6 +40,6 @@ export class SignUpDialogComponent {
   }
 
   get validatedForm() {
-    return this.form.dirty && this.form.valid && !this.submitting;
+    return this.form.dirty && this.form.valid;
   }
 }

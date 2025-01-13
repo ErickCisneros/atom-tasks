@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  OnDestroy,
+} from '@angular/core';
 import {
   NonNullableFormBuilder,
   ReactiveFormsModule,
@@ -10,6 +15,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { User } from '../../types/user';
 import { SignUpDialogComponent } from '../sign-up-dialog/sign-up-dialog.component';
@@ -28,52 +34,67 @@ import { SignUpDialogComponent } from '../sign-up-dialog/sign-up-dialog.componen
   styleUrl: './sign-in.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export default class SignInComponent {
+export default class SignInComponent implements OnDestroy {
   private dialog = inject(MatDialog);
   private router = inject(Router);
   private authService = inject(AuthService);
-  private submitting = false;
-
   private fb = inject(NonNullableFormBuilder);
+  private subs = new Subscription();
 
-  public form = this.fb.group({
+  form = this.fb.group({
     email: this.fb.control('', {
       validators: [Validators.required, Validators.email],
     }),
   });
 
   get validatedForm() {
-    return this.form.dirty && this.form.valid && !this.submitting;
+    return this.form.dirty && this.form.valid;
+  }
+
+  ngOnDestroy() {
+    this.subs.unsubscribe();
   }
 
   onSubmit() {
-    this.authService
-      .getUser$(this.form.controls.email.value)
-      .subscribe((user: User) => {
-        if (!user.id) {
-          this.createUserAndLogin(this.form.controls.email.value);
-          return;
-        }
-
-        this.router.navigate(['/dashboard']);
-      });
+    const email = this.form.controls.email.value;
+    this.subs.add(this.authService.getUser$(email).subscribe(this.getUser));
   }
 
   onSignUp() {
     const dialogRef = this.dialog.open(SignUpDialogComponent);
-
-    dialogRef.afterClosed().subscribe((email: string) => {
-      if (email) {
-        this.createUserAndLogin(email);
-      }
-    });
+    this.subs.add(dialogRef.afterClosed().subscribe(this.getEmailFromDialog));
   }
 
-  private createUserAndLogin = (email: string): void => {
-    const user: User = { email };
+  private getEmailFromDialog = (email: string) => {
+    if (!email) {
+      return;
+    }
 
-    this.authService.postUser$(user).subscribe(() => {
-      this.router.navigate(['/dashboard']);
-    });
+    this.createUserAndLogin(email);
+  };
+
+  private getUser = (user: User) => {
+    if (!user.id) {
+      const email = this.form.controls.email.value;
+      this.createUserAndLogin(email);
+      return;
+    }
+
+    this.router.navigate(['/dashboard']);
+  };
+
+  private createUserAndLogin = (email: string) => {
+    const user: User = { email };
+    this.subs.add(
+      this.authService.postUser$(user).subscribe(this.getUserAndRedirect),
+    );
+  };
+
+  private getUserAndRedirect = (user: User) => {
+    if (!user.id) {
+      return;
+    }
+
+    this.router.navigate(['/dashboard']);
   };
 }

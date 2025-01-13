@@ -33,12 +33,12 @@ export class TasksListsComponent implements OnInit, OnDestroy {
   private taskService = inject(TaskService);
   private subs = new Subscription();
   private cdr = inject(ChangeDetectorRef);
+  private tasks$ = this.taskService.getTasks$();
+  private refreshTasks$ = this.taskService.onTasksRefresh();
 
   todo: Task[] = [];
   done: Task[] = [];
   list = ListEnum;
-  tasks$ = this.taskService.getTasks$();
-  refreshTasks$ = this.taskService.onTasksRefresh();
 
   ngOnInit(): void {
     this.loadTasks();
@@ -66,7 +66,11 @@ export class TasksListsComponent implements OnInit, OnDestroy {
 
       const task: Task = event.item.data;
       const completedAt = ListEnum.DONE === list ? new Date() : null;
-      this.taskService.putTask$(task.id, { ...task, completedAt }).subscribe();
+      this.subs.add(
+        this.taskService
+          .putTask$(task.id, { ...task, completedAt })
+          .subscribe(),
+      );
     }
   }
 
@@ -75,17 +79,21 @@ export class TasksListsComponent implements OnInit, OnDestroy {
   }
 
   completeTask(task: Task) {
-    this.taskService
-      .putTask$(task.id, { ...task, completedAt: new Date() })
-      .subscribe();
+    this.subs.add(
+      this.taskService
+        .putTask$(task.id, { ...task, completedAt: new Date() })
+        .subscribe(),
+    );
   }
 
   deleteTask(task: Task) {
-    this.taskService.deleteTask$(task.id).subscribe(this.refreshTasks);
+    this.subs.add(
+      this.taskService.deleteTask$(task.id).subscribe(this.refreshTasks),
+    );
   }
 
   private loadTasks() {
-    this.subs.add(this.tasks$.subscribe(this.getTasks));
+    this.subs.add(this.subs.add(this.tasks$.subscribe(this.getTasks)));
   }
 
   private getTasks = (tasks: Task[]) => {
