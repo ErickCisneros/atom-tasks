@@ -12,7 +12,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { Subscription } from 'rxjs';
+import { MessagesEnum } from '../../../types/messages.enum';
 import { Task } from '../../../types/task';
+import { SnackbarsService } from '../../services/snackbars.service';
 import { TaskService } from '../../services/task.service';
 
 @Component({
@@ -33,6 +35,7 @@ import { TaskService } from '../../services/task.service';
 })
 export class TaskFormComponent implements OnInit, OnDestroy {
   private taskService = inject(TaskService);
+  private snackbarsService = inject(SnackbarsService);
   private fb = inject(NonNullableFormBuilder);
   private subs = new Subscription();
   private taskId: string | null = null;
@@ -82,5 +85,6 @@ export class TaskFormComponent implements OnInit, OnDestroy {
   private clearForm = () => {
     this.taskId = null;
     this.form.reset();
+    this.snackbarsService.openSnackbar(MessagesEnum.SAVED);
   };
 }

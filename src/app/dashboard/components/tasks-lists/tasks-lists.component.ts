@@ -16,9 +16,11 @@ import {
 } from '@angular/core';
 import { MatCard, MatCardTitle } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
-import { Subscription } from 'rxjs';
+import { finalize, Subscription } from 'rxjs';
 import { ListEnum } from '../../../types/list.enum';
+import { MessagesEnum } from '../../../types/messages.enum';
 import { Task } from '../../../types/task';
+import { SnackbarsService } from '../../services/snackbars.service';
 import { TaskService } from '../../services/task.service';
 
 @Component({
@@ -31,6 +33,7 @@ import { TaskService } from '../../services/task.service';
 })
 export class TasksListsComponent implements OnInit, OnDestroy {
   private taskService = inject(TaskService);
+  private snackbarsService = inject(SnackbarsService);
   private subs = new Subscription();
   private cdr = inject(ChangeDetectorRef);
   private tasks$ = this.taskService.getTasks$();
@@ -64,12 +67,16 @@ export class TasksListsComponent implements OnInit, OnDestroy {
         event.currentIndex,
       );
 
-      const task: Task = event.item.data;
-      const completedAt = ListEnum.DONE === list ? new Date() : null;
+      const task: Task = {
+        ...event.item.data,
+        completedAt: ListEnum.DONE === list ? new Date() : null,
+      };
       this.subs.add(
         this.taskService
-          .putTask$(task.id, { ...task, completedAt })
-          .subscribe(),
+          .putTask$(task.id, task)
+          .subscribe(() =>
+            this.snackbarsService.openSnackbar(MessagesEnum.COMPLETED),
+          ),
       );
     }
   }
@@ -82,13 +89,22 @@ export class TasksListsComponent implements OnInit, OnDestroy {
     this.subs.add(
       this.taskService
         .putTask$(task.id, { ...task, completedAt: new Date() })
-        .subscribe(),
+        .subscribe(() =>
+          this.snackbarsService.openSnackbar(MessagesEnum.COMPLETED),
+        ),
     );
   }
 
   deleteTask(task: Task) {
     this.subs.add(
-      this.taskService.deleteTask$(task.id).subscribe(this.refreshTasks),
+      this.taskService
+        .deleteTask$(task.id)
+        .pipe(
+          finalize(() =>
+            this.snackbarsService.openSnackbar(MessagesEnum.DELETED),
+          ),
+        )
+        .subscribe(this.refreshTasks),
     );
   }
 
