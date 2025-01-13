@@ -38,6 +38,7 @@ export class TaskFormComponent implements OnInit, OnDestroy {
   private snackbarsService = inject(SnackbarsService);
   private fb = inject(NonNullableFormBuilder);
   private subs = new Subscription();
+  private submitting = false;
   private taskId: string | null = null;
 
   form = this.fb.group({
@@ -47,7 +48,9 @@ export class TaskFormComponent implements OnInit, OnDestroy {
 
   get validatedForm() {
     return (
-      this.form.controls.title.value && this.form.controls.description.value
+      this.form.controls.title.value &&
+      this.form.controls.description.value &&
+      !this.submitting
     );
   }
 
@@ -60,6 +63,7 @@ export class TaskFormComponent implements OnInit, OnDestroy {
   }
 
   onSubmit() {
+    this.submitting = true;
     const task: Partial<Task> = this.form.value;
 
     if (this.taskId) {
@@ -84,6 +88,7 @@ export class TaskFormComponent implements OnInit, OnDestroy {
 
   private clearForm = () => {
     this.taskId = null;
+    this.submitting = false;
     this.form.reset();
     this.snackbarsService.openSnackbar(MessagesEnum.SAVED);
   };
